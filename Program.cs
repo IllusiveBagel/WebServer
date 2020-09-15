@@ -22,6 +22,7 @@ namespace WebServer
             // Initialize Serilog Logger
             Log.Logger = new LoggerConfiguration()
                  .WriteTo.Console(Serilog.Events.LogEventLevel.Debug)
+                 .WriteTo.File(args[0], rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)
                  .MinimumLevel.Debug()
                  .Enrich.FromLogContext()
                  .CreateLogger();
