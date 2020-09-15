@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+using Serilog;
+
 using WebServer.Services;
 using WebServer.Interfaces;
 
@@ -16,7 +19,7 @@ namespace WebServer
 
         static int Main(string[] args)
         {
-            // Initialize serilog logger
+            // Initialize Serilog Logger
             Log.Logger = new LoggerConfiguration()
                  .WriteTo.Console(Serilog.Events.LogEventLevel.Debug)
                  .MinimumLevel.Debug()
@@ -25,7 +28,7 @@ namespace WebServer
 
             try
             {
-                // Start!
+                // Start
                 MainAsync(args).Wait();
                 return 0;
             }
@@ -51,6 +54,7 @@ namespace WebServer
 
             try
             {
+                // Start App Service
                 Log.Information("Starting Service");
                 await serviceProvider.GetService<App>().Run();
                 Log.Information("Ending Service");
@@ -62,6 +66,7 @@ namespace WebServer
             }
             finally
             {
+                // Clear Log on App Close
                 Log.CloseAndFlush();
             }
         }
@@ -90,7 +95,7 @@ namespace WebServer
             serviceCollection.AddTransient<App>();
 
             // Add Services
-            serviceCollection.AddSingleton<IServer, Server>();
+            serviceCollection.AddSingleton<IServerService, ServerService>();
         }
     }
 }

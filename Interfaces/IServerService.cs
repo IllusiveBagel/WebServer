@@ -1,6 +1,6 @@
 namespace WebServer.Interfaces
 {
-    public interface IServer
+    public interface IServerService
     {
         void Start();
         void Stop();
