@@ -49,9 +49,6 @@ namespace WebServer
             Log.Information("Building Service Provider");
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
-            // Print connection string to demonstrate configuration object is populated
-            Console.WriteLine(configuration.GetConnectionString("DataConnection"));
-
             try
             {
                 // Start App Service
