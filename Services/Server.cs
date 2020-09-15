@@ -3,24 +3,30 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using WebServer.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-namespace WebServer
+namespace WebServer.Services
 {
-    class WebServer
+    class Server: IServer
     {
+        private readonly ILogger<Server> _logger;
         HttpListener _listener;
         string _baseFolder;     // Web Page Folder
 
-        public WebServer(string uriPrefix, string baseFolder)
+        public Server(string uriPrefix, string baseFolder, ILoggerFactory loggerFactory)
         {
             _listener = new HttpListener();
             _listener.Prefixes.Add(uriPrefix);
             _baseFolder = baseFolder;
+            _logger = loggerFactory.CreateLogger<Server>();
         }
 
         public async void Start()
         {
             _listener.Start();
+            _logger.LogInformation("Server Started");
 
             while(true)
             {
@@ -46,7 +52,7 @@ namespace WebServer
 
                 if(!File.Exists(path))
                 {
-                    Console.WriteLine($"Resource Not Found: {path}");
+                    _logger.LogError($"Resource Not Found: {path}");
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     msg = Encoding.UTF8.GetBytes("Sorry, that page does not exist");
                 }
@@ -59,7 +65,7 @@ namespace WebServer
                 using(Stream s = context.Response.OutputStream)
                     await s.WriteAsync(msg, 0, msg.Length);
             }
-            catch(Exception ex) { Console.WriteLine($"Request Error: {ex}"); }
+            catch(Exception ex) { _logger.LogError($"Request Error: {ex}"); }
         }
     }
 }
