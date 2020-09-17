@@ -2,6 +2,6 @@ namespace WebServer.Models
 {
     public class Config
     {
-        public string webroot { get; set; }
+        public string siteConfigs { get; set; }
     }
 }

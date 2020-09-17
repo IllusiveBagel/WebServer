@@ -21,8 +21,8 @@ namespace WebServer
         {
             // Initialize Serilog Logger
             Log.Logger = new LoggerConfiguration()
-                 .WriteTo.Console(Serilog.Events.LogEventLevel.Debug)                                           // Write Log to the Console
-                 .WriteTo.File(args[0], rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)     // Save Log to a File Location Specified in Console Params
+                 .WriteTo.Console(Serilog.Events.LogEventLevel.Debug)                                                               // Write Log to the Console
+                 .WriteTo.File("c:\\webserver\\logs\\.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)     // Save Log to File  
                  .MinimumLevel.Debug()
                  .Enrich.FromLogContext()
                  .CreateLogger();

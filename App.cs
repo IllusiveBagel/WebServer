@@ -1,8 +1,12 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+
+using Newtonsoft.Json;
 
 using WebServer.Models;
 using WebServer.Services;
@@ -24,8 +28,22 @@ namespace WebServer
             // Convert Returned Config to Model
             _config = config.Get<Config>();
 
+            // Load All Config Files and Add to List
+            List<Sites> sites = new List<Sites>();
+            DirectoryInfo directory = new DirectoryInfo(_config.siteConfigs);
+
+            foreach (var file in directory.GetFiles("*.json"))
+            {
+                using (StreamReader fi = File.OpenText(file.FullName))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    Sites site = (Sites)serializer.Deserialize(fi, typeof(Sites));
+                    sites.Add(site);
+                }
+            }
+
             // Create Web Server
-            _webServer = new ServerService("http://localhost:51111/", _config.webroot, loggerFactory);
+            _webServer = new ServerService(sites, loggerFactory);
         }
 
         public async Task Run()
