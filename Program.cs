@@ -19,14 +19,6 @@ namespace WebServer
 
         static int Main(string[] args)
         {
-            // Initialize Serilog Logger
-            Log.Logger = new LoggerConfiguration()
-                 .WriteTo.Console(Serilog.Events.LogEventLevel.Debug)                                                               // Write Log to the Console
-                 .WriteTo.File("c:\\webserver\\logs\\.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: null)     // Save Log to File  
-                 .MinimumLevel.Debug()
-                 .Enrich.FromLogContext()
-                 .CreateLogger();
-
             try
             {
                 // Start
@@ -42,7 +34,6 @@ namespace WebServer
         static async Task MainAsync(string[] args)
         {
             // Create Service Collection
-            Log.Information("Creating Service Collection");
             ServiceCollection serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
@@ -71,6 +62,17 @@ namespace WebServer
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
+            // Build Configuration
+            configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
+                .AddJsonFile("appsettings.json", false)
+                .Build();
+
+            // Initialize Serilog Logger
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+
             // Add Logging
             serviceCollection.AddSingleton(LoggerFactory.Create(builder =>
             {
@@ -79,12 +81,6 @@ namespace WebServer
             }));
 
             serviceCollection.AddLogging();
-
-            // Build Configuration
-            configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
-                .AddJsonFile("appsettings.json", false)
-                .Build();
 
             // Add Access to Generic IConfigurationRoot
             serviceCollection.AddSingleton<IConfigurationRoot>(configuration);
