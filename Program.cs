@@ -50,6 +50,7 @@ namespace WebServer
             }
             catch (Exception ex)
             {
+                // Log Any Errors Thrown by Service Startup
                 Log.Fatal(ex, "Error Running Service");
                 throw ex;
             }
