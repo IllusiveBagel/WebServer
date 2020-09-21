@@ -34,12 +34,14 @@ namespace WebServer
 
             foreach (var file in directory.GetFiles("*.json"))
             {
+                string content;
+
                 using (StreamReader fi = File.OpenText(file.FullName))
                 {
-                    JsonSerializer serializer = new JsonSerializer();
-                    Sites site = (Sites)serializer.Deserialize(fi, typeof(Sites));
-                    sites.Add(site);
+                    content = fi.ReadToEnd();
                 }
+
+                sites.Add(JsonConvert.DeserializeObject<Sites>(content));
             }
 
             // Create Web Server

@@ -65,23 +65,30 @@ namespace WebServer.Services
                 {
                     if(context.Request.UserHostName == site.URL)
                     {
-                        // Get Page Name From URL and Get File
-                        string filename = Path.GetFileName(context.Request.RawUrl);
-                        string path = Path.Combine(site.WebRoot, filename);
                         byte[] msg;
 
-                        if(!File.Exists(path))
+                        // Check if Endpoints are Enabled
+                        if(site.UseEndpoints)
                         {
-                            // Return 404 Page if File Not Found
-                            _logger.LogError($"Resource Not Found: {path}");
-                            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                            msg = Encoding.UTF8.GetBytes("Sorry, that page does not exist");
+                            string file = "";
+
+                            // Loop Through Endpoints to Find Requested Page
+                            foreach(Endpoint Endpoint in site.Endpoints)
+                            {
+                                if(Endpoint.URL == context.Request.RawUrl)
+                                {
+                                    file = Endpoint.File;
+                                    break;
+                                }
+                            }
+
+                            // Get File for Endpoint
+                            msg = GetFile(site.WebRoot, file, context);
                         }
                         else
                         {
-                            // Return Requested File
-                            context.Response.StatusCode = (int)HttpStatusCode.OK;
-                            msg = File.ReadAllBytes(path);
+                            // Get Page Name From URL and Get File
+                            msg = GetFile(site.WebRoot, context.Request.RawUrl, context);
                         }
 
                         // Return Response
@@ -97,6 +104,29 @@ namespace WebServer.Services
             {
                 _logger.LogError($"Request Error: {ex}");
             }
+        }
+
+        private byte[] GetFile(string directory, string fileName, HttpListenerContext context)
+        {
+            string filename = Path.GetFileName(fileName);
+            string path = Path.Combine(directory, filename);
+            byte[] msg;
+
+            if(!File.Exists(path))
+            {
+                // Return 404 Page if File Not Found
+                _logger.LogError($"Resource Not Found: {context.Request.Url}");
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                msg = Encoding.UTF8.GetBytes("Sorry, that page does not exist");
+            }
+            else
+            {
+                // Return Requested File
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                msg = File.ReadAllBytes(path);
+            }
+
+            return msg;
         }
     }
 }
